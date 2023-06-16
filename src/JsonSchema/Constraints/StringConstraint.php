@@ -25,14 +25,14 @@ class StringConstraint extends Constraint
     public function check(&$element, $schema = null, JsonPointer $path = null, $i = null)
     {
         // Verify maxLength
-        if (isset($schema->maxLength) && $this->strlen($element) > $schema->maxLength) {
+        if (isset($schema->maxLength) && $this->strlen($element, $schema) > $schema->maxLength) {
             $this->addError($path, 'Must be at most ' . $schema->maxLength . ' characters long', 'maxLength', array(
                 'maxLength' => $schema->maxLength,
             ));
         }
 
         //verify minLength
-        if (isset($schema->minLength) && $this->strlen($element) < $schema->minLength) {
+        if (isset($schema->minLength) && $this->strlen($element, $schema) < $schema->minLength) {
             $this->addError($path, 'Must be at least ' . $schema->minLength . ' characters long', 'minLength', array(
                 'minLength' => $schema->minLength,
             ));
@@ -48,8 +48,12 @@ class StringConstraint extends Constraint
         $this->checkFormat($element, $schema, $path, $i);
     }
 
-    private function strlen($string)
+    private function strlen($string, $schema)
     {
+        if (isset($schema->ignoreHtmlTagsLength) && $schema->ignoreHtmlTagsLength === true) {
+            $string = strip_tags($string);
+        }
+
         if (extension_loaded('mbstring')) {
             return mb_strlen($string, mb_detect_encoding($string));
         }
