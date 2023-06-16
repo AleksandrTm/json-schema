@@ -52,7 +52,7 @@ class ObjectConstraint extends Constraint
                 $definition = $this->getProperty($properties, $i);
 
                 if (!in_array($i, $matches) && $this->inlineSchemaProperty !== $i && !$definition) {
-                    unset($val->{$i});
+                    unset($value->{$i});
                 }
             }
         }
