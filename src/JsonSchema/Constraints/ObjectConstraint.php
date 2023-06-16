@@ -27,10 +27,10 @@ class ObjectConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$element, $schema = null, JsonPointer $path = null, $properties = null,
+    public function check(&$value, $schema = null, JsonPointer $path = null, $properties = null,
         $additionalProp = null, $patternProperties = null, $appliedDefaults = array())
     {
-        if ($element instanceof UndefinedConstraint) {
+        if ($value instanceof UndefinedConstraint) {
             return;
         }
 
@@ -39,16 +39,16 @@ class ObjectConstraint extends Constraint
         $matches = array();
         if ($patternProperties) {
             // validate the element pattern properties
-            $matches = $this->validatePatternProperties($element, $path, $patternProperties);
+            $matches = $this->validatePatternProperties($value, $path, $patternProperties);
         }
 
         if ($properties) {
             // validate the element properties
-            $this->validateProperties($element, $properties, $path);
+            $this->validateProperties($value, $properties, $path);
         }
 
         // validate additional element properties & constraints
-        $this->validateElement($element, $matches, $schema, $path, $properties, $additionalProp);
+        $this->validateElement($value, $matches, $schema, $path, $properties, $additionalProp);
     }
 
     public function validatePatternProperties($element, JsonPointer $path = null, $patternProperties)

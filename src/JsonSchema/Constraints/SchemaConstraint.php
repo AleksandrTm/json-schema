@@ -28,14 +28,14 @@ class SchemaConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$element, $schema = null, JsonPointer $path = null, $i = null)
+    public function check(&$value, $schema = null, JsonPointer $path = null, $i = null)
     {
         if ($schema !== null) {
             // passed schema
             $validationSchema = $schema;
-        } elseif ($this->getTypeCheck()->propertyExists($element, $this->inlineSchemaProperty)) {
+        } elseif ($this->getTypeCheck()->propertyExists($value, $this->inlineSchemaProperty)) {
             // inline schema
-            $validationSchema = $this->getTypeCheck()->propertyGet($element, $this->inlineSchemaProperty);
+            $validationSchema = $this->getTypeCheck()->propertyGet($value, $this->inlineSchemaProperty);
         } else {
             throw new InvalidArgumentException('no schema found to verify against');
         }
@@ -89,6 +89,6 @@ class SchemaConstraint extends Constraint
         }
 
         // validate element against $validationSchema
-        $this->checkUndefined($element, $validationSchema, $path, $i);
+        $this->checkUndefined($value, $validationSchema, $path, $i);
     }
 }

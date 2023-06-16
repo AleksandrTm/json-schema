@@ -22,30 +22,30 @@ class StringConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$element, $schema = null, JsonPointer $path = null, $i = null)
+    public function check(&$value, $schema = null, JsonPointer $path = null, $i = null)
     {
         // Verify maxLength
-        if (isset($schema->maxLength) && $this->strlen($element, $schema) > $schema->maxLength) {
+        if (isset($schema->maxLength) && $this->strlen($value, $schema) > $schema->maxLength) {
             $this->addError($path, 'Must be at most ' . $schema->maxLength . ' characters long', 'maxLength', array(
                 'maxLength' => $schema->maxLength,
             ));
         }
 
         //verify minLength
-        if (isset($schema->minLength) && $this->strlen($element, $schema) < $schema->minLength) {
+        if (isset($schema->minLength) && $this->strlen($value, $schema) < $schema->minLength) {
             $this->addError($path, 'Must be at least ' . $schema->minLength . ' characters long', 'minLength', array(
                 'minLength' => $schema->minLength,
             ));
         }
 
         // Verify a regex pattern
-        if (isset($schema->pattern) && !preg_match('#' . str_replace('#', '\\#', $schema->pattern) . '#u', $element)) {
+        if (isset($schema->pattern) && !preg_match('#' . str_replace('#', '\\#', $schema->pattern) . '#u', $value)) {
             $this->addError($path, 'Does not match the regex pattern ' . $schema->pattern, 'pattern', array(
                 'pattern' => $schema->pattern,
             ));
         }
 
-        $this->checkFormat($element, $schema, $path, $i);
+        $this->checkFormat($value, $schema, $path, $i);
     }
 
     private function strlen($string, $schema)
