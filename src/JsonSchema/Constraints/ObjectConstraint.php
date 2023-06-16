@@ -47,6 +47,16 @@ class ObjectConstraint extends Constraint
             $this->validateProperties($value, $properties, $path);
         }
 
+        if ($this->factory->getConfig(self::CHECK_MODE_REMOVE_ADDITIONAL_PROPERTIES)) {
+            foreach ($value as $i => $val) {
+                $definition = $this->getProperty($properties, $i);
+
+                if (!in_array($i, $matches) && $this->inlineSchemaProperty !== $i && !$definition) {
+                    unset($val->{$i});
+                }
+            }
+        }
+
         // validate additional element properties & constraints
         $this->validateElement($value, $matches, $schema, $path, $properties, $additionalProp);
     }
