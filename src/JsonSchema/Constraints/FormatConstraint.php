@@ -24,7 +24,7 @@ class FormatConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$element, $schema = null, JsonPointer $path = null, $i = null)
+    public function check(&$value, $schema = null, JsonPointer $path = null, $i = null)
     {
         if (!isset($schema->format) || $this->factory->getConfig(self::CHECK_MODE_DISABLE_FORMAT)) {
             return;
@@ -32,75 +32,75 @@ class FormatConstraint extends Constraint
 
         switch ($schema->format) {
             case 'date':
-                if (!$date = $this->validateDateTime($element, 'Y-m-d')) {
-                    $this->addError($path, sprintf('Invalid date %s, expected format YYYY-MM-DD', json_encode($element)), 'format', array('format' => $schema->format));
+                if (!$date = $this->validateDateTime($value, 'Y-m-d')) {
+                    $this->addError($path, sprintf('Invalid date %s, expected format YYYY-MM-DD', json_encode($value)), 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'time':
-                if (!$this->validateDateTime($element, 'H:i:s')) {
-                    $this->addError($path, sprintf('Invalid time %s, expected format hh:mm:ss', json_encode($element)), 'format', array('format' => $schema->format));
+                if (!$this->validateDateTime($value, 'H:i:s')) {
+                    $this->addError($path, sprintf('Invalid time %s, expected format hh:mm:ss', json_encode($value)), 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'date-time':
-                if (null === Rfc3339::createFromString($element)) {
-                    $this->addError($path, sprintf('Invalid date-time %s, expected format YYYY-MM-DDThh:mm:ssZ or YYYY-MM-DDThh:mm:ss+hh:mm', json_encode($element)), 'format', array('format' => $schema->format));
+                if (null === Rfc3339::createFromString($value)) {
+                    $this->addError($path, sprintf('Invalid date-time %s, expected format YYYY-MM-DDThh:mm:ssZ or YYYY-MM-DDThh:mm:ss+hh:mm', json_encode($value)), 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'utc-millisec':
-                if (!$this->validateDateTime($element, 'U')) {
-                    $this->addError($path, sprintf('Invalid time %s, expected integer of milliseconds since Epoch', json_encode($element)), 'format', array('format' => $schema->format));
+                if (!$this->validateDateTime($value, 'U')) {
+                    $this->addError($path, sprintf('Invalid time %s, expected integer of milliseconds since Epoch', json_encode($value)), 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'regex':
-                if (!$this->validateRegex($element)) {
-                    $this->addError($path, 'Invalid regex format ' . $element, 'format', array('format' => $schema->format));
+                if (!$this->validateRegex($value)) {
+                    $this->addError($path, 'Invalid regex format ' . $value, 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'color':
-                if (!$this->validateColor($element)) {
+                if (!$this->validateColor($value)) {
                     $this->addError($path, 'Invalid color', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'style':
-                if (!$this->validateStyle($element)) {
+                if (!$this->validateStyle($value)) {
                     $this->addError($path, 'Invalid style', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'phone':
-                if (!$this->validatePhone($element)) {
+                if (!$this->validatePhone($value)) {
                     $this->addError($path, 'Invalid phone number', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'uri':
-                if (null === filter_var($element, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE)) {
+                if (null === filter_var($value, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE)) {
                     $this->addError($path, 'Invalid URL format', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'uriref':
             case 'uri-reference':
-                if (null === filter_var($element, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE)) {
+                if (null === filter_var($value, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE)) {
                     // FILTER_VALIDATE_URL does not conform to RFC-3986, and cannot handle relative URLs, but
                     // the json-schema spec uses RFC-3986, so need a bit of hackery to properly validate them.
                     // See https://tools.ietf.org/html/rfc3986#section-4.2 for additional information.
-                    if (substr($element, 0, 2) === '//') { // network-path reference
-                        $validURL = filter_var('scheme:' . $element, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
-                    } elseif (substr($element, 0, 1) === '/') { // absolute-path reference
-                        $validURL = filter_var('scheme://host' . $element, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
-                    } elseif (strlen($element)) { // relative-path reference
-                        $pathParts = explode('/', $element, 2);
+                    if (substr($value, 0, 2) === '//') { // network-path reference
+                        $validURL = filter_var('scheme:' . $value, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
+                    } elseif (substr($value, 0, 1) === '/') { // absolute-path reference
+                        $validURL = filter_var('scheme://host' . $value, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
+                    } elseif (strlen($value)) { // relative-path reference
+                        $pathParts = explode('/', $value, 2);
                         if (strpos($pathParts[0], ':') !== false) {
                             $validURL = null;
                         } else {
-                            $validURL = filter_var('scheme://host/' . $element, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
+                            $validURL = filter_var('scheme://host/' . $value, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE);
                         }
                     } else {
                         $validURL = null;
@@ -117,27 +117,27 @@ class FormatConstraint extends Constraint
                     // Only available from PHP >= 7.1.0, so ignore it for coverage checks
                     $filterFlags |= constant('FILTER_FLAG_EMAIL_UNICODE'); // @codeCoverageIgnore
                 }
-                if (null === filter_var($element, FILTER_VALIDATE_EMAIL, $filterFlags)) {
+                if (null === filter_var($value, FILTER_VALIDATE_EMAIL, $filterFlags)) {
                     $this->addError($path, 'Invalid email', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'ip-address':
             case 'ipv4':
-                if (null === filter_var($element, FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE | FILTER_FLAG_IPV4)) {
+                if (null === filter_var($value, FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE | FILTER_FLAG_IPV4)) {
                     $this->addError($path, 'Invalid IP address', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'ipv6':
-                if (null === filter_var($element, FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE | FILTER_FLAG_IPV6)) {
+                if (null === filter_var($value, FILTER_VALIDATE_IP, FILTER_NULL_ON_FAILURE | FILTER_FLAG_IPV6)) {
                     $this->addError($path, 'Invalid IP address', 'format', array('format' => $schema->format));
                 }
                 break;
 
             case 'host-name':
             case 'hostname':
-                if (!$this->validateHostname($element)) {
+                if (!$this->validateHostname($value)) {
                     $this->addError($path, 'Invalid hostname', 'format', array('format' => $schema->format));
                 }
                 break;

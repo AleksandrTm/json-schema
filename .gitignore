@@ -1,5 +1,4 @@
 /vendor
-/bin
 !/bin/validate-json
 coverage
 .buildpath
@@ -10,3 +9,7 @@ coverage
 composer.lock
 docs-api
 phpunit.xml
+.docker
+docker-compose.yml
+Makefile
+.idea
