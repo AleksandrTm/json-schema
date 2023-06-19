@@ -38,6 +38,10 @@ class StringConstraint extends Constraint
             ));
         }
 
+        if (isset($schema->pregReplace) && is_array($schema->pregReplace) && count($schema->pregReplace) === 2) {
+            $value = preg_replace($schema->pregReplace[0], $schema->pregReplace[1], $value);
+        }
+
         // Verify a regex pattern
         if (isset($schema->pattern) && !preg_match('#' . str_replace('#', '\\#', $schema->pattern) . '#u', $value)) {
             $this->addError($path, 'Does not match the regex pattern ' . $schema->pattern, 'pattern', array(

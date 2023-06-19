@@ -134,7 +134,7 @@ abstract class Constraint extends BaseConstraint implements ConstraintInterface
      * @param JsonPointer|null $path
      * @param mixed            $i
      */
-    protected function checkString($value, $schema = null, JsonPointer $path = null, $i = null)
+    protected function checkString(&$value, $schema = null, JsonPointer $path = null, $i = null)
     {
         $validator = $this->factory->createInstanceFor('string');
         $validator->check($value, $schema, $path, $i);
