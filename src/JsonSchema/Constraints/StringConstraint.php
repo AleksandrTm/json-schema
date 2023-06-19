@@ -42,6 +42,13 @@ class StringConstraint extends Constraint
             $value = preg_replace($schema->pregReplace[0], $schema->pregReplace[1], $value);
         }
 
+        if (!empty($schema->allowedTags) && is_array($schema->allowedTags)) {
+            $allowAttribs = $schema->allowAttribs ?? [];
+
+            $FilterTagsAndAttributes = new FilterTagsAndAttributes($schema->allowedTags, $allowAttribs);
+            $value = $FilterTagsAndAttributes->filter($value);
+        }
+
         // Verify a regex pattern
         if (isset($schema->pattern) && !preg_match('#' . str_replace('#', '\\#', $schema->pattern) . '#u', $value)) {
             $this->addError($path, 'Does not match the regex pattern ' . $schema->pattern, 'pattern', array(
