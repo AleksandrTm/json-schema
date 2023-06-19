@@ -22,28 +22,28 @@ class EnumConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$element, $schema = null, JsonPointer $path = null, $i = null)
+    public function check(&$value, $schema = null, JsonPointer $path = null, $i = null)
     {
         // Only validate enum if the attribute exists
-        if ($element instanceof UndefinedConstraint && (!isset($schema->required) || !$schema->required)) {
+        if ($value instanceof UndefinedConstraint && (!isset($schema->required) || !$schema->required)) {
             return;
         }
-        $type = gettype($element);
+        $type = gettype($value);
 
         foreach ($schema->enum as $enum) {
             $enumType = gettype($enum);
             if ($this->factory->getConfig(self::CHECK_MODE_TYPE_CAST) && $type == 'array' && $enumType == 'object') {
-                if ((object) $element == $enum) {
+                if ((object) $value == $enum) {
                     return;
                 }
             }
 
             if ($type === gettype($enum)) {
                 if ($type == 'object') {
-                    if ($element == $enum) {
+                    if ($value == $enum) {
                         return;
                     }
-                } elseif ($element === $enum) {
+                } elseif ($value === $enum) {
                     return;
                 }
             }
