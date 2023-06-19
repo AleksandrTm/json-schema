@@ -1,5 +1,5 @@
 {
-    "name": "aleksandr-tm/json-schema",
+    "name": "aleksandr.tm/json-schema",
     "type": "library",
     "description": "A library to validate a json schema.",
     "keywords": [
